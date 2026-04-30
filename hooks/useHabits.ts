@@ -49,7 +49,7 @@ export function useHabits() {
           color: data.color,
           icon: data.icon,
           createdAt: data.createdAt?.toDate() || new Date(),
-          currentStreak: data.currentStreak || 0,
+          currentStreak: calculateStreak(data.completedDates || []),
           longestStreak: data.longestStreak || 0,
           completedDates: data.completedDates || [],
           reminderTime: data.reminderTime,
