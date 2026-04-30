@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HabitForge - Build Powerful Habits",
+  title: "TrackerJacker - Build Powerful Habits",
   description: "Track your daily habits, build streaks, and transform your life",
 };
 
