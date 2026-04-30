@@ -83,7 +83,7 @@ export default function Dashboard() {
 
   
 
-const handleToggleHabit = async (habitId) => {
+const handleToggleHabit = async (habitId:string) => {
   if (isSyncing) return;
   setIsSyncing(true);
 
