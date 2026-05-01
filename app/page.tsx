@@ -264,7 +264,7 @@ export default function Dashboard() {
   // Stats
   const totalHabits = habitsToUse.length;
   const completedToday = habitsToUse.filter(h => h.completedDates.includes(today)).length;
-  const totalStreaks = habitsToUse.reduce((acc, h) => acc + h.currentStreak, 0);
+  const totalStreaks = habitsToUse.filter(h => h.currentStreak > 0).length;
   const longestStreak = Math.max(...habitsToUse.map(h => h.longestStreak), 0);
 
   // Group habits by category
