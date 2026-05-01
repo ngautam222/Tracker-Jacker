@@ -48,6 +48,7 @@ export function useHabits() {
           description: data.description,
           color: data.color,
           icon: data.icon,
+          category: data.category || "other",
           createdAt: data.createdAt?.toDate() || new Date(),
           currentStreak: calculateStreak(data.completedDates || []),
           longestStreak: data.longestStreak || 0,
@@ -78,6 +79,7 @@ export function useHabits() {
     description?: string;
     color: string;
     icon: string;
+    category?: string; 
     reminderTime?: string;
     reminderEnabled?: boolean;
   }) => {
@@ -91,6 +93,7 @@ export function useHabits() {
         description: habitData.description || "",
         color: habitData.color,
         icon: habitData.icon,
+        category: habitData.category || "other", 
         createdAt: serverTimestamp(),
         currentStreak: 0,
         longestStreak: 0,
