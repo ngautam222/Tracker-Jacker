@@ -5,6 +5,7 @@ export interface Habit {
   description?: string;
   color: string;
   icon: string;
+  category?: string;
   createdAt: Date;
   currentStreak: number;
   longestStreak: number;
