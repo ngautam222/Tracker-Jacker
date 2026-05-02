@@ -211,6 +211,112 @@ export default function Dashboard() {
 
   const habitsToUse = localHabits;
 
+  const triggerCanvasConfetti = () => {
+    const canvas = document.createElement("canvas");
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+    canvas.style.pointerEvents = "none";
+    canvas.style.zIndex = "9999";
+    document.body.appendChild(canvas);
+
+    const overlay = document.createElement("div");
+    // overlay.style.position = "fixed";
+    // overlay.style.top = "0";
+    // overlay.style.left = "0";
+    // overlay.style.width = "100vw";
+    // overlay.style.height = "100vh";
+    // overlay.style.pointerEvents = "none";
+    // overlay.style.zIndex = "9998";
+    // overlay.style.backgroundColor = "rgba(255,255,255,0)";
+    // overlay.style.transition = "opacity 0.25s ease";
+    // document.body.appendChild(overlay);
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    // if (!ctx) {
+    //   document.body.removeChild(overlay);
+    //   return;
+    // }
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    ctx.scale(dpr, dpr);
+
+    type Particle = {
+      x: number;
+      y: number;
+      dx: number;
+      dy: number;
+      size: number;
+      rotation: number;
+      angularVelocity: number;
+      color: string;
+      alpha: number;
+      life: number;
+    };
+
+    const colors = ["#22c55e", "#f59e0b", "#ec4899", "#38bdf8", "#a78bfa", "#ffffff"];
+    const particles: Particle[] = Array.from({ length: 120 }, () => ({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 3,
+      dx: (Math.random() - 0.5) * 12,
+      dy: Math.random() * -14 - 4,
+      size: Math.random() * 8 + 4,
+      rotation: Math.random() * Math.PI * 2,
+      angularVelocity: (Math.random() - 0.5) * 0.24,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 1,
+      life: Math.random() * 60 + 80,
+    }));
+
+    let frame = 0;
+    const animate = () => {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      particles.forEach((particle) => {
+        particle.x += particle.dx;
+        particle.y += particle.dy;
+        particle.dy += 0.32;
+        particle.rotation += particle.angularVelocity;
+        particle.alpha = Math.max(0, 1 - frame / particle.life);
+
+        ctx.save();
+        ctx.translate(particle.x, particle.y);
+        ctx.rotate(particle.rotation);
+        ctx.globalAlpha = particle.alpha;
+        ctx.fillStyle = particle.color;
+        ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size * 1.6);
+        ctx.restore();
+      });
+      frame += 1;
+      if (frame < 120) {
+        requestAnimationFrame(animate);
+      } else {
+        document.body.removeChild(canvas);
+        if (overlay.parentElement) document.body.removeChild(overlay);
+      }
+    };
+
+    let flashCount = 0;
+    const flashInterval = window.setInterval(() => {
+      flashCount += 1;
+      overlay.style.backgroundColor = flashCount % 2 === 0 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0)";
+      if (flashCount >= 10) {
+        window.clearInterval(flashInterval);
+        overlay.style.backgroundColor = "rgba(255,255,255,0)";
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          if (overlay.parentElement) document.body.removeChild(overlay);
+        }, 250);
+      }
+    }, 75);
+
+    requestAnimationFrame(animate);
+  };
+
   const handleAddHabit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newHabit.name.trim()) return;
@@ -228,6 +334,13 @@ export default function Dashboard() {
 
   const handleToggleHabit = async (habitId: string) => {
     if (isSyncing) return;
+    const completedTodayCount = localHabits.filter(h => h.completedDates.includes(today)).length;
+    const targetHabit = localHabits.find(h => h.id === habitId);
+    if (!targetHabit) return;
+
+    const isCompleting = !targetHabit.completedDates.includes(today);
+    const willCompleteFinalHabit = isCompleting && completedTodayCount === localHabits.length - 1;
+
     setIsSyncing(true);
     setLocalHabits(prev =>
       prev.map(h =>
@@ -241,7 +354,11 @@ export default function Dashboard() {
           : h
       )
     );
+
     await toggleHabitCompletion(habitId, today);
+    if (willCompleteFinalHabit) {
+      triggerCanvasConfetti();
+    }
     setTimeout(() => setIsSyncing(false), 300);
   };
 
