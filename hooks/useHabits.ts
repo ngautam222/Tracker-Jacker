@@ -178,13 +178,29 @@ export function useHabits() {
   };
 }
 
+// Helper function for New York timezone formatting
+function formatNewYorkDate(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const year = parts.find((part) => part.type === "year")?.value ?? "";
+  const month = parts.find((part) => part.type === "month")?.value ?? "";
+  const day = parts.find((part) => part.type === "day")?.value ?? "";
+
+  return `${year}-${month}-${day}`;
+}
+
 // Helper function to calculate streak
 function calculateStreak(completedDates: string[]): number {
   if (completedDates.length === 0) return 0;
 
   const sortedDates = [...completedDates].sort().reverse();
-  const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  const today = getTodayDateString();
+  const yesterday = getDateString(new Date(Date.now() - 86400000));
 
   // Check if the most recent completion is today or yesterday
   if (sortedDates[0] !== today && sortedDates[0] !== yesterday) {
@@ -207,12 +223,12 @@ function calculateStreak(completedDates: string[]): number {
   return streak;
 }
 
-// Get today's date string
+// Get today's date string in EST
 export function getTodayDateString(): string {
-  return new Date().toISOString().split("T")[0];
+  return formatNewYorkDate(new Date());
 }
 
-// Get date string for a specific date
+// Get date string for a specific date in EST
 export function getDateString(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return formatNewYorkDate(date);
 }
