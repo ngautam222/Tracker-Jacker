@@ -45,4 +45,5 @@ export const HABIT_ICONS = [
   { name: "Food", value: "food" },
   { name: "Heart", value: "heart" },
   { name: "Star", value: "star" },
+  { name: "Sun", value: "sun" },
 ];
