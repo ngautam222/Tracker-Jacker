@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useHabits, getTodayDateString } from "@/hooks/useHabits";
+import { useHabits, getDateString, getTodayDateString } from "@/hooks/useHabits";
 import { Habit, HABIT_COLORS, HABIT_ICONS } from "@/types/habit";
 
 // ─── Category definitions ────────────────────────────────────────────────────
@@ -381,14 +381,15 @@ export default function Dashboard() {
               for (let day = 1; day <= totalDays; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                 const isToday = dateStr === today;
+                const activeCount = habitsToUse.filter(h => getDateString(h.createdAt) <= dateStr).length;
                 const completedCount = habitsToUse.filter(h => h.completedDates.includes(dateStr)).length;
-                const rate = totalHabits > 0 ? completedCount / totalHabits : 0;
+                const rate = activeCount > 0 ? completedCount / activeCount : 0;
                 let bgClass = "bg-slate-700/40", borderClass = "border-slate-600", shadowClass = "", animClass = "";
                 if (rate === 1 && totalHabits > 0) { bgClass = "bg-green-400"; borderClass = "border-green-300"; shadowClass = "shadow-[0_0_14px_rgba(74,222,128,1),0_0_24px_rgba(74,222,128,0.8)]"; animClass = "animate-[glow_1.8s_ease-in-out_infinite]"; }
                 else if (rate >= 0.5) { bgClass = "bg-green-400/60"; borderClass = "border-green-400/60"; shadowClass = "shadow-[0_0_10px_rgba(74,222,128,0.6)]"; }
                 else if (rate > 0) { bgClass = "bg-green-400/30"; borderClass = "border-green-400/40"; shadowClass = "shadow-[0_0_6px_rgba(74,222,128,0.4)]"; }
                 days.push(
-                  <div key={day} className={`h-10 rounded-lg border ${bgClass} ${borderClass} ${shadowClass} ${animClass} flex items-center justify-center text-sm font-medium transition-all duration-300 hover:scale-105 active:scale-95`} title={`${dateStr}: ${completedCount}/${totalHabits}`}>
+                  <div key={day} className={`h-10 rounded-lg border ${bgClass} ${borderClass} ${shadowClass} ${animClass} flex items-center justify-center text-sm font-medium transition-all duration-300 hover:scale-105 active:scale-95`} title={`${dateStr}: ${completedCount}/${activeCount}`}>
                     <span className={isToday ? "text-white" : "text-slate-300"}>{day}</span>
                   </div>
                 );
